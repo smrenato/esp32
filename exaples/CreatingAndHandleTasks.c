@@ -11,7 +11,7 @@ static TaskHandle_t fib_handle_task = NULL;
 static TaskHandle_t suspend_handle_task = NULL;
 
 
-void fibTask(void *parameters){
+void fib(){
     int a = 0, b = 1, c = 0;
     while (1)
     {
@@ -27,17 +27,17 @@ void fibTask(void *parameters){
     }
 }
 
-void taskInterval(void * parameters){
-    vTaskSuspend(fib_task);
+void interval(){
+    vTaskSuspend(fib_handle_task);
     vTaskDelay(INTERVAL_DELAY / portTICK_PERIOD_MS);
-    vTaskResume(fib_task);
+    vTaskResume(fib_handle_task);
 
 }
 
-void suspendTask(void *parameters){
+void suspend(void *parameters){
     while(1){
         vTaskDelay(SUSPEND_DELAY/portTICK_PERIOD_MS);
-        taskInterval(NULL);
+        interval(NULL);
 
     }
 
@@ -68,7 +68,7 @@ void removeDuplicate(int* received){
 
 }
 
-void addToSend(int* received, int* toSend){
+void prepareToSend(int* received, int* toSend){
     int i=0, j=0; 
     
     for ( i = 0; i < DATA_SIZE; i++)
@@ -90,11 +90,11 @@ void app_main(void)
 {   
     int i=0;
     
-    xTaskCreate(fibTask, "fibTask", 2048, NULL, 2, &fib_handle_task);
-    xTaskCreate(suspendTask, "suspendTask", 2048, NULL, 1, &suspend_handle_task);
+    xTaskCreate(fib, "fib", 2048, NULL, 2, &fib_handle_task);
+    xTaskCreate(suspend, "suspend", 2048, NULL, 1, &suspend_handle_task);
 
     removeDuplicate(received);
-    addToSend(received, toSend);
+    prepareToSend(received, toSend);
     
     for (i = 0; i < DATA_SIZE; i++)
     {

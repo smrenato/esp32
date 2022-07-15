@@ -27,7 +27,7 @@ void removeDuplicate(int* received){
 
 }
 
-void addToSend(int* received, int* toSend){
+void prepareToSend(int* received, int* toSend){
     int i=0, j=0; 
     
     for ( i = 0; i < DATA_SIZE; i++)
@@ -49,7 +49,7 @@ int main(void){
     int i=0;
 
     removeDuplicate(received);
-    addToSend(received, toSend);
+    prepareToSend(received, toSend);
 
     for (i = 0; i < DATA_SIZE; i++)
     {
