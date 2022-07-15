@@ -4,7 +4,7 @@
 
 ### Para executar os exemplos primeiro instale o IDF e faça o setup do ambiente
 
-[ESP IDF tutorial de instalção](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
+[ESP IDF tutorial de instalação](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
 
 #### Altere o arquivo makefile, para o nome do codigo na pasta 
 
