@@ -9,6 +9,7 @@ sdkconfig.ci
 sdkconfig.old
 
 app
+test.c
 
 *.d
 

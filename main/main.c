@@ -5,28 +5,42 @@
 #include "freertos/task.h" // TASKS
 #include "freertos/queue.h"
 
-#define FREQ_TIME_X 1000
-#define FREQ_TIME_Y 10000
 
-
-static TaskHandle_t pin_4_freq_handle_task = NULL; // handle of pin 4
-static TaskHandle_t pin_12_freq_handle_task = NULL; // handle of pin 12
+static TaskHandle_t pin_4_signal_handle_task = NULL; // handle of pin 4
+static TaskHandle_t pin_12_signal_handle_task = NULL; // handle of pin 12
 static TaskHandle_t queue_consumer_handle_task = NULL; // handle of pin 12
 
 
 static QueueHandle_t queue_handle = NULL; // handle of queue
 
-static const int pin_num_4 = 4; //  signal emmiter
-static const int pin_num_12 = 12; // signal emmiter
+// static const int pin_num_4 = 4; //  signal emmiter
+// static const int pin_num_12 = 12; // signal emmiter
 
 static const int pin_isr_num_5 = 5; // ISR 
 static const int pin_isr_num_13 = 13; // ISR
+
+typedef struct pin_ms{
+    int pin;
+    int ms;
+} pin_ms_t;
+
+pin_ms_t pin_4 = {
+    .pin = 4,
+    .ms = 1000
+};
+
+pin_ms_t pin_12 = {
+    .pin = 12,
+    .ms = 5000
+};
+
+
 
 
 // 4(signal) -> to pin -> 13(ISR_negedge)
 // 12(signal) -> to pin -> 5(ISR_posedge)
 
-// Queue 
+// *Queue 
 static void queueConsumer(void *pvParameters){
     int isrReceivedFrom = -1 ;
     
@@ -39,7 +53,7 @@ static void queueConsumer(void *pvParameters){
 }
 
 
-// ISR Handler
+// *ISR Handler
 
 static void IRAM_ATTR gpioISR(void* arg){
     
@@ -50,33 +64,31 @@ static void IRAM_ATTR gpioISR(void* arg){
 
 
 
-// signal taks generator
+// * signal taks generator
 
-void signal(const int pin, const int freq_time){
+void signal(const int pin, const int ms_time){
     
     while(1){
-        printf("Pin: %d | ms: %d\n", pin, freq_time);
+        printf("Pin: %d | ms: %d\n", pin, ms_time);
         gpio_set_level(pin, 1);
-        vTaskDelay(freq_time / portTICK_PERIOD_MS);
+        vTaskDelay(ms_time / portTICK_PERIOD_MS);
         gpio_set_level(pin, 0);
-        vTaskDelay(freq_time / portTICK_PERIOD_MS);
+        vTaskDelay(ms_time / portTICK_PERIOD_MS);
     }
 
 }
 
 
+// ! ============
 
-void pin4Freq(void * parameters){
-    const int pin = * (int*) parameters;
-    signal(pin, FREQ_TIME_X);
+
+void pinSignal(void * parameters){
+    const pin_ms_t pin = *(pin_ms_t* ) parameters;
+
+    signal(pin.pin, pin.ms);
 }
 
-void pin12Freq(void * parameters){
-    const int pin = * (int*) parameters;
-    signal(pin, FREQ_TIME_Y);
-}
-
-
+//! =========
 
 
 void app_main(void)
@@ -99,8 +111,8 @@ void app_main(void)
     gpio_config(&io_conf);
     
 
-    xTaskCreate(pin4Freq, "pin 4 Signal", 2048, (void*) &pin_num_4, 2, &pin_4_freq_handle_task);
-    xTaskCreate(pin12Freq, "pin 12 Signal", 2048, (void*) &pin_num_12, 2, &pin_12_freq_handle_task);
+    xTaskCreate(pinSignal, "pin 4 Signal", 2048, (void*) &pin_4, 2, &pin_4_signal_handle_task);
+    xTaskCreate(pinSignal, "pin 12 Signal", 2048, (void*) &pin_12, 2, &pin_12_signal_handle_task);
     xTaskCreate(queueConsumer, "Queue consumer", 2048, NULL, 1, &queue_consumer_handle_task);
 
 
