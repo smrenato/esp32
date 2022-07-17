@@ -94,7 +94,7 @@ void pinSignal(void * parameters){
 void app_main(void)
 {
 
-    //setup of output pins 
+    // ! setup of output pins 
     
     gpio_config_t io_conf ; 
 
@@ -110,13 +110,7 @@ void app_main(void)
     
     gpio_config(&io_conf);
     
-
-    xTaskCreate(pinSignal, "pin 4 Signal", 2048, (void*) &pin_4, 2, &pin_4_signal_handle_task);
-    xTaskCreate(pinSignal, "pin 12 Signal", 2048, (void*) &pin_12, 2, &pin_12_signal_handle_task);
-    xTaskCreate(queueConsumer, "Queue consumer", 2048, NULL, 1, &queue_consumer_handle_task);
-
-
-    // setup of ISR pins 
+    // ! setup of ISR pins 
 
     // PIN 5
     io_conf.intr_type = GPIO_INTR_POSEDGE; // IMPORTANT desable interruptions
@@ -142,6 +136,13 @@ void app_main(void)
     gpio_install_isr_service(0);
     gpio_isr_handler_add(GPIO_NUM_5, gpioISR, (void*) &pin_isr_num_5);
     gpio_isr_handler_add(GPIO_NUM_13, gpioISR, (void*) &pin_isr_num_13);
+
+    // TASKS
+    xTaskCreate(pinSignal, "pin 4 Signal", 2048, (void*) &pin_4, 2, &pin_4_signal_handle_task);
+    xTaskCreate(pinSignal, "pin 12 Signal", 2048, (void*) &pin_12, 2, &pin_12_signal_handle_task);
+    xTaskCreate(queueConsumer, "Queue consumer", 2048, NULL, 1, &queue_consumer_handle_task);
+
+
 
 
 }
