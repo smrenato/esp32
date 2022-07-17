@@ -19,8 +19,8 @@ static QueueHandle_t queue_handle = NULL; // handle of queue
 static const int pin_num_4 = 4; //  signal emmiter
 static const int pin_num_12 = 12; // signal emmiter
 
-static const int pin_isr_num_5 = 5; // ISR 
-static const int pin_isr_num_13 = 13; // ISR
+static const int pin_num_5 = 5; // ISR 
+static const int pin_num_13 = 13; // ISR
 
 
 // 4(signal) -> to pin -> 13(ISR_negedge)
@@ -128,8 +128,8 @@ void app_main(void)
 
     // ISR
     gpio_install_isr_service(0);
-    gpio_isr_handler_add(GPIO_NUM_5, gpioISR, (void*) &pin_isr_num_5);
-    gpio_isr_handler_add(GPIO_NUM_13, gpioISR, (void*) &pin_isr_num_13);
+    gpio_isr_handler_add(GPIO_NUM_5, gpioISR, (void*) &pin_num_5);
+    gpio_isr_handler_add(GPIO_NUM_13, gpioISR, (void*) &pin_num_13);
 
 
 }
