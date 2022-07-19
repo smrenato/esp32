@@ -79,7 +79,7 @@ void stopTimer(int delay){
     esp_timer_stop(timer_handle);
 }
 
-void setToZero(void){
+void setGPIOToZero(void){
     gpio_set_level(GPIO_NUM_4,  0);
     gpio_set_level(GPIO_NUM_2, 0);
     
@@ -97,7 +97,7 @@ static void setLevelMotor(void *args){
 
 static void queueConsumer(void *pvParameters){
     int isrReceivedFrom = -1 ;
-    int motorCicle = 0;
+    int motorCycle = 0;
 
     esp_timer_create_args_t timer_args = {
         .callback = &setLevelMotor,
@@ -112,33 +112,32 @@ static void queueConsumer(void *pvParameters){
         printf("Timer not created\n");
     }
     
-
     while (1){
-        if(xQueueReceiveFromISR(queue_handle, &isrReceivedFrom, NULL)){
+        if(xQueueReceive(queue_handle, &isrReceivedFrom, portMAX_DELAY)){
             printf("ISR received from: %d\n", isrReceivedFrom);
-            printf("WORK TIME SET: %d\n", WORK_TIME);
+            printf("WORK TIME SET: %d s\n", WORK_TIME/1000);
 
             if(isrReceivedFrom == 12){
-                motorCicle = pin_12.ms;
-                printf("Queeu consumer motorCicle %d\n", motorCicle);
-                esp_timer_start_periodic(timer_handle, motorCicle);
+                motorCycle = pin_12.ms;
+                printf("Queeu consumer motorCycle %d\n", motorCycle);
+                esp_timer_start_periodic(timer_handle, motorCycle);
                 stopTimer(WORK_TIME);
                 
             }
             if(isrReceivedFrom == 13){
-                motorCicle = pin_13.ms;
-                printf("Queeu consumer motorCicle %d\n", motorCicle);
-                esp_timer_start_periodic(timer_handle, motorCicle);
+                motorCycle = pin_13.ms;
+                printf("Queeu consumer motorCycle %d\n", motorCycle);
+                esp_timer_start_periodic(timer_handle, motorCycle);
                 stopTimer(WORK_TIME);
             }
             if(isrReceivedFrom == 14){
-                motorCicle = pin_14.ms;
-                printf("Queeu consumer motorCicle %d\n", motorCicle);
-                esp_timer_start_periodic(timer_handle, motorCicle);
+                motorCycle = pin_14.ms;
+                printf("Queeu consumer motor Cicle %d\n", motorCycle);
+                esp_timer_start_periodic(timer_handle, motorCycle);
                 stopTimer(WORK_TIME);
             }
 
-           setToZero(); // Set to zero after work time, to avoid the motor stay working
+           setGPIOToZero(); // Set to zero after work time, to avoid the motor stay working
         
         }else{
             printf("Waiting for ISR\n");
@@ -188,7 +187,7 @@ void app_main(void)
     gpio_isr_handler_add(GPIO_NUM_13, gpioISR, (void*) &pin_isr_num_13);
     gpio_isr_handler_add(GPIO_NUM_14, gpioISR, (void*) &pin_isr_num_14);
 
-    xTaskCreate(queueConsumer, "motor task", 2048,NULL, 2, &consumer_handle_task);
+    xTaskCreate(queueConsumer, "Queue Consumer", 2048,NULL, 2, &consumer_handle_task);
     xTaskCreate(signalPin, "signal pin", 2048, (void*)&pin_15 , 2, &signal_pin_handle_task);
 }
 
